@@ -1,0 +1,111 @@
+apiVersion: grsf.grpl.io/v1alpha1
+kind: GrappleApplicationSet
+metadata:
+  name: gras-db-file
+  namespace: gras-db-file
+spec:
+  grapis:
+  - name: gras-db-file
+    spec:
+      datasources:
+      - name: db
+        spec:
+          memory:
+            connector: memory
+            file: /tmp/data.json
+            localStorage: db
+            name: db
+      discoveredrepos: true
+      ingress: true
+      initContainers:
+      - name: test
+        spec:
+          command:
+          - sh
+          - -c
+          - if ! test -f /tmp/data.json; then wget -O /tmp/data.json https://raw.githubusercontent.com/grapple-solutions/grapple-test-data/main/classicmodelsid/db.json;
+            chmod 777 /tmp/data.json; fi
+          image: busybox:1.28
+          name: init-db
+      models:
+      - name: customer
+        spec:
+          base: Entity
+          name: customer
+          properties:
+            customername:
+              type: string
+            datecreated:
+              required: false
+              type: date
+            datelastupdated:
+              required: false
+              type: date
+            emaildomain:
+              required: true
+              type: string
+            id:
+              generated: true
+              id: true
+              required: true
+              type: number
+      - name: email
+        spec:
+          base: Entity
+          name: email
+          properties:
+            email:
+              required: true
+              type: string
+            emaildomain:
+              required: true
+              type: string
+            id:
+              generated: true
+              id: true
+              required: true
+              type: number
+      - name: cluster
+        spec:
+          base: Entity
+          name: cluster
+          properties:
+            clusterdns:
+              type: string
+            clusteridentifier:
+              type: string
+            clustername:
+              type: string
+            customerId:
+              type: string
+            datecreated:
+              required: false
+              type: date
+            datelastupdated:
+              required: false
+              type: date
+            emailId:
+              required: true
+              type: string
+            id:
+              generated: true
+              id: true
+              required: true
+              type: number
+      restcruds:
+      - name: restcrud
+        spec:
+          datasource: db
+      volumeMounts:
+      - mountPath: /data
+        name: data
+      volumes:
+      - emptyDir: {}
+        name: data
+  gruims:
+  - name: gras-db-file
+    spec:
+      additionalpackages: ""
+      config: ""
+      style: '{"colors":{"primary":{"DEFAULT":"#34344A","fg":"#fff"},"accent":{"DEFAULT":"#CC5A71","fg":"#fff"}}}'
+  name: gras-db-file
